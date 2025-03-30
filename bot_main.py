@@ -9,14 +9,15 @@ BOT_TOKEN = '6547643857:AAELyo-54AsPdF1vMeB5a1JukAROO0lqgA4'
 
 bot = telebot.TeleBot(BOT_TOKEN)
 
+
 @bot.message_handler(commands=['start'])
 def start_command(message: Message):
     data = {
-        'user_id': message.from_user.id,
-        'username':message.from_user.username
+        "user_id": message.from_user.id,
+        "username": message.from_user.username
     }
-    response = requests.post(API_URL, json=data)  # почему post???
-    if not response.status_code == 200:
+    response = requests.post(API_URL + '/registration', json=data)  # почему post???
+    if response.status_code == 200:
         if response.json().get('message'):
             bot.send_message(message.chat.id, 'Пользователь с таким именем уже зарегистрирован')
         else:
@@ -27,6 +28,17 @@ def start_command(message: Message):
         print(response.json())
         print(response.status_code)
         print(response.text)
+
+
+@bot.message_handler(commands=['info'])
+def user_info(message: Message):
+    response = requests.get(f"{API_URL}/user/{message.from_user.id}/")  # почему post???
+    if response.status_code == 200:
+        bot.reply_to(message, f"Ваша регистрация {response.json()}")
+    elif response.status_code == 404:
+        bot.send_message(message.chat.id, 'Вы не зарегистрированы!!')
+    else:
+        bot.send_message(message.chat.id, 'Непредвиденная ошибка!!!')
 
 
 if __name__ == '__main__':

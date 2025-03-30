@@ -16,6 +16,16 @@ def user_registration(request):
     )
     if created:
         serializer = TelegramUserSerializer(user)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.data)
     else:
-        return Response({'message': 'User has been already created'}, status=status.HTTP_409_CONFLICT)
+        return Response({'message': 'User has been already created'})
+
+
+@api_view(['GET'])
+def get_user_info(request, user_id):
+    try:
+        user = TelegramUser.objects.get(user_id=user_id)
+        serializer = TelegramUserSerializer(user)
+        return Response(serializer.data)
+    except TelegramUser.DoesNotExist:
+        return Response({"message": "User does not"}, status=404)
