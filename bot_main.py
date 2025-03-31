@@ -5,7 +5,7 @@ import requests
 
 
 API_URL = 'http://127.0.0.1:8000/api'
-BOT_TOKEN = 'BOT TOKEN'
+BOT_TOKEN = 'BOT_TOKEN'
 
 bot = telebot.TeleBot(BOT_TOKEN)
 
