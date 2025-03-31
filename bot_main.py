@@ -5,7 +5,8 @@ import requests
 
 
 API_URL = 'http://127.0.0.1:8000/api'
-BOT_TOKEN = 'BOT_TOKEN'
+BOT_TOKEN = 'bot_token'
+REGISTRATION_LINK = 'http://127.0.0.1:8000/api/user/'
 
 bot = telebot.TeleBot(BOT_TOKEN)
 
@@ -16,26 +17,27 @@ def start_command(message: Message):
         "user_id": message.from_user.id,
         "username": message.from_user.username
     }
-    response = requests.post(API_URL + '/registration', json=data)  # почему post???
+    response = requests.post(API_URL + '/registration', json=data)
     if response.status_code == 200:
         if response.json().get('message'):
-            bot.send_message(message.chat.id, 'Пользователь с таким именем уже зарегистрирован')
+            bot.send_message(message.chat.id, f'Пользователь с таким ID уже зарегистрирован')
         else:
-            bot.send_message(message.chat.id, f'Вы успешно зарегистрированы!! Ваш уникальный номер '
-                                              f'{response.json()['id']}')
+            bot.send_message(message.chat.id, f"Ваш телеграм ID: <b>{response.json()['user_id']}</b>,\n"
+                              f"Ваше имя: <b>{response.json()['username']}</b>\n"
+                     f"Время создания: <b>{response.json()['created_at']}</b>\n"
+                              f"Ваша ссылка: <b>{API_URL}/user/{message.from_user.id}/</b>", parse_mode='HTML')
     else:
         bot.send_message(message.chat.id, 'Произошла ошибка при регистрации!!!')
-        print(response.json())
-        print(response.status_code)
-        print(response.text)
 
 
 @bot.message_handler(commands=['info'])
 def user_info(message: Message):
     response = requests.get(f"{API_URL}/user/{message.from_user.id}/")  # почему post???
     if response.status_code == 200:
-        bot.reply_to(message, f"Ваша регистрация: \n Ваш телеграм ID {response.json()['user_id']} \n "
-                              f"Ваше имя {response.json()['username']}")
+        bot.reply_to(message, f"Ваш телеграм ID: <b>{response.json()['user_id']}</b>,\n"
+                              f"Ваше имя: <b>{response.json()['username']}</b>\n"
+                     f"Время создания: <b>{response.json()['created_at']}</b>\n"
+                              f"Ваша ссылка: <b>{API_URL}/user/{message.from_user.id}/</b>", parse_mode='HTML')
     elif response.status_code == 404:
         bot.send_message(message.chat.id, 'Вы не зарегистрированы!!')
     else:
