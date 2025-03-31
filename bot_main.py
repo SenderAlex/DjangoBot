@@ -5,7 +5,7 @@ import requests
 
 
 API_URL = 'http://127.0.0.1:8000/api'
-BOT_TOKEN = '6547643857:AAELyo-54AsPdF1vMeB5a1JukAROO0lqgA4'
+BOT_TOKEN = 'BOT TOKEN'
 
 bot = telebot.TeleBot(BOT_TOKEN)
 
@@ -34,7 +34,8 @@ def start_command(message: Message):
 def user_info(message: Message):
     response = requests.get(f"{API_URL}/user/{message.from_user.id}/")  # почему post???
     if response.status_code == 200:
-        bot.reply_to(message, f"Ваша регистрация {response.json()}")
+        bot.reply_to(message, f"Ваша регистрация: \n Ваш телеграм ID {response.json()['user_id']} \n "
+                              f"Ваше имя {response.json()['username']}")
     elif response.status_code == 404:
         bot.send_message(message.chat.id, 'Вы не зарегистрированы!!')
     else:
